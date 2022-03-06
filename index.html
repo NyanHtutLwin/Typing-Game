@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/bbdccb4e58.js" crossorigin="anonymous"></script>
+
+</head>
+<style>
+     body{
+       font-family: sans-serif;
+       height: 100vh;
+       margin: 0 auto;
+       text-align: center;
+       background-image: url("game1.jpg");
+       background-repeat: no-repeat;
+       background-position: center;
+       background-size: cover;
+   }
+
+   .statusBar{
+       padding: 15px;
+       background: #ffffff;
+       color: #ffffff;
+   }
+  h1{
+      font-size: 28px;
+      padding: 10px;
+  }
+  .bar{
+      padding: 15px;
+      background: rgb(128, 175, 219);
+      color: #000000;
+      box-shadow: 0px 0px 10px gray;
+  }
+  p{
+      display: inline-block;
+  }
+  #score, #time{
+      background: gray;
+      padding: 8px 15px 8px 15px;
+      margin-left: 5px;
+      border-bottom-right-radius: 10px;
+  }
+
+  h3{
+      font-size: 21px;
+      display: inline-block;
+      margin-top: 1px;
+      background: rgb(253, 251, 251);
+      padding: 7px 0px 7px 15px;
+      border-radius: 10px;
+      border-bottom-left-radius: 0px;
+      margin-right: 10px;
+  }
+  p, .form-control{
+      font-size: 20px;
+  }
+    textarea{
+        width: 40%;
+        padding: 10px;
+        height: 100%;
+    }
+    .alert{
+        margin: 0px;
+    }
+  #about{
+      display: none;
+      box-shadow: 0px 0px 10px rgb(0, 0, 0);
+  }
+  button{
+      color: #000000;
+       background-color: rgb(255, 255, 255);
+       border-radius: 50px;
+       padding: 10px;
+      
+       font-size: 18px;
+   }
+   
+   
+   
+ 
+</style>
+<body>
+
+    <div class="alert alert-primary" style="font-size: 20px;"> 
+        <span id="timeInterval">Hello, Good Afternoon </span>
+         <button class="btn btn-outline-dark" id="show"
+          onclick="popUp()">User</button>
+    </div>
+    
+    <body oncontextmenu="return true">
+        <div class="bar"> 
+            <h1>Typing Game</h1>
+    
+    <h3>
+       <span>Score</span>
+        <span id="score">0</span>
+    </h3>
+    <h3>
+       <span>Time Left</span>
+        <span id="time">0</span>
+    </h3>
+    <button id="play"><i class="fas fa-play" style="font-size: 20px;"></i> Play</button>
+        <button id="pause"><i class="fas fa-pause" style="font-size: 20px;"></i> Pause</button>
+        <button class="mb-3" id="playAgain"><i class="fas fa-redo"></i> Play Again</button>
+                
+    </div> 
+
+    <div class="container">
+        <div class="row">
+
+            <div class="col-12 col-md-8 col-lg-6 mx-auto text-center">
+                <p id="random" class="mt-5" oncopy="return false"></p>
+                <p id="gameStatus" class="mt-5"></p>
+                <button class="btn btn-outline-primary mb-3" id="skip" 
+                onclick="skip()">Skip</button>
+                <textarea onpaste="return false" id="typedWord" 
+                placeholder="Type the above sentence"
+                class="form-control mt-3"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div id="about">
+        <h1>About this game</h1>
+        <br>
+    <p>1.For this game you need to write the sentence that are show above. 
+        <br><br>
+       2. If you need to wrtie really long sentence press skip 
+       <br>
+       it will change the sentence. You might get shorter one.
+       <br><br>
+       3. If you press User you can put your name there.
+       <br><br>
+       4. If you press play, you can listen to the song.
+       <br><br>
+       5. If you answer correct, you will get random extra time between 11 to 15 sec.
+       <br><br>
+       6.If you score 10 point you will win.
+       <br><br>
+       7.sometime even if you write sentence correct and it wont move to next one.<br>
+        So when that happen check upper case word and lower case word or check space and dont forget to put at the end of sentence "." .
+        <br><br>
+        8. Dont every think about cheating. Like copying and paste. Just kidding try to cheat if you can.
+        <br><br>
+        9. If it is too hard for you I am sorry because this is normal speed for me.
+        <br>
+       Good Luck 😎 !!
+    </p>
+</div>
+
+</body>
+<script>
+let random = document.querySelector("#random");
+
+let play = document.getElementById("play");
+let pause = document.getElementById("pause");
+var gameSound = new Audio('g.mp3');
+
+
+ const url="https://game-of-thrones-quotes.herokuapp.com/v1/random/5";
+ 
+ async function getData(){
+     let responce = await fetch(url);
+     let data = await responce.json();
+     let randomWord = Math.floor(Math.random() * data.length)
+     random.innerHTML = data[randomWord].sentence;
+ }
+
+ getData();
+
+ function skip(){
+     getData();
+ }
+ let typedWord = document.querySelector("#typedWord");
+ let displayScore = document.querySelector("#score");
+ let score = 0 ;
+ let storedPoints;
+ let showTime = document.querySelector("#time");
+
+ typedWord.addEventListener("keyup", () => {
+     if(typedWord.value.trim() === random.innerText){
+         score++;
+         displayScore.innerHTML = score;
+         getData();
+         typedWord.value = "";
+         let extraTime = [11,12,13,14,15];
+         let randomNumber = Math.floor(Math.random() * extraTime.length);
+         let randomTime = extraTime[randomNumber];
+         time+= randomTime;
+
+         localStorage.setItem("storedScore", score);
+         storedPoints = localStorage.getItem("storedScore");
+
+         localStorage.setItem("storedTime", time);
+         showTime.innerHTML = time + "s";
+
+         let day = data.getDate();
+         let month = data.getMonth();
+         let year = data.getFullYear();
+         let monthName = ["January", "February", "March", "April", "May", "June", "July", "August", "Spetember", "October", "November", "December"]
+         let lastPlayData = `${day} , ${monthName[month]} , ${year}`;
+         localStorage.setItem("lastData", lastPlayData);
+     }
+ })
+
+ 
+ 
+    
+let time = 60;
+
+function displayTime(){
+    time--;
+    var storedSeconds = localStorage.getItem("storedTime");
+    showTime.innerHTML = time + "s";
+    if(!storedSeconds){
+        localStorage.setItem("storedTime", time);
+    }
+
+    if(time == 0){
+        clearInterval(counter);
+        localStorage.setItem("storedTime", 0);
+        showTime.innerHTML = storedSeconds + "s";
+        gameOver();
+
+    }
+    getStored();
+    if(storedPoints >= 10){
+        showTime.innerHTML = storedSeconds + "s";
+        gameWin();
+    }
+}
+storedPoints = localStorage.getItem("storedScore");
+let gameStatus = document.getElementById("gameStatus");
+
+function getStored(){
+    if(storedPoints){
+        displayScore.innerHTML = storedPoints;
+    }else{
+        displayScore.innerHTML = 0;
+    }
+}
+let counter = setInterval(displayTime, 1000);
+let skipButton = document.querySelector("#skip");
+let playAgain = document.querySelector("#playAgain");
+let about = document.querySelector("#about");
+
+function gameOver(){
+    random.style.display= "none";
+    play.style.display = "none";
+    pause.style.display = "none";
+    gameSound.pause();
+    
+    gameStatus.innerHTML = "You lose, Time Run Out 😓 !!"
+    typedWord.style.display = "none";
+    skipButton.style.display = "none";
+    playAgain.style.display = "inline-block";
+    about.style.display = "inline-block";
+    clearInterval(counter)
+}
+function gameWin(){
+        random.style.display = "none";
+        gameStatus.style.display = "block";
+        let lastPlay = localStorage.getItem("lastData")
+        gameStatus.innerHTML = `You Won!! You are really good at typing 🥳!!<br><br>
+        Last Play Data : ${lastPlay}`;
+        typedWord.style.display="none";
+        skipButton.style.display = "none";
+        playAgain.style.display = "inline-block";
+        about.style.display = "inline-block";
+        play.style.display = "none";
+         pause.style.display = "none";
+        gameSound.pause();
+       
+        clearInterval(counter)
+    }
+
+playAgain.addEventListener("click", () => {
+    window.location.reload();
+    playAgain.style.display = "none";
+    localStorage.removeItem("storedScore");
+    localStorage.removeTime("storedTime");
+});
+
+let data = new Date();
+let hours = data.getHours();
+let timeIntrerval = document.getElementById("timeInterval");
+
+if (hours >= 1 && hours<=5){
+  timeIntrerval.innerHTML = "Hello, Early Morning 🥱";
+}else if (hours >= 6 && hours<=12){
+  timeIntrerval.innerHTML = "Hello, Good Morning 🌞";
+}else if (hours >= 12 && hours<=14){
+  timeIntrerval.innerHTML = "Hello, Good Afternoon☀️";
+}else if (hours >= 15 && hours<=18){
+  timeIntrerval.innerHTML = "Hello, Good Evening🌤️";
+}else if (hours >= 19 && hours<=24){
+  timeIntrerval.innerHTML = "Hello, Good Night🌜";
+}else {
+    timeIntrerval.innerHTML = "Hello, warmly welcome to"
+}
+
+let showUser = document.querySelector("#show");
+function popUp(){
+    let username = prompt("What is your name ?");
+    localStorage.setItem("storedUser", username);
+    showUser.innerHTML = username;
+}
+
+let storedUser = localStorage.getItem("storedUser");
+if(storedUser){
+    showUser.innerHTML = storedUser;
+}else{
+    showUser.innerHTML = "User";
+}
+play.addEventListener("click", ()=> {
+      
+      gameSound.play();
+      gameSound.loop = true;
+  });
+
+  pause.addEventListener("click", ()=> {
+      gameSound.pause();
+  });
+
+</script>
+</html>
